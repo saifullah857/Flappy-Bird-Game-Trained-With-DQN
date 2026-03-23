@@ -11,6 +11,22 @@
 
 <br/>
 
+> **A Deep Q-Network (DQN) reinforcement learning agent that learns to play Flappy Bird from scratch — no human input, just raw trial and error.**
+
+<br/>
+
+
+   . <img src="https://i.pcmag.com/imagery/reviews/06fBcC3YpdFj7i0VvkWspTj-1.fit_lim.size_885x1444.v_1569469985.jpg" alt="Agent playing Flappy Bird" width="480"/>
+    
+
+
+<br/>
+
+[![Watch Demo](https://img.shields.io/badge/▶%20Watch%20Demo-YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](#)
+[![Open Issues](https://img.shields.io/github/issues/saifullah857/Flappy-Bird-Game-Trained-With-DQN?style=for-the-badge&logo=github)](https://github.com/saifullah857/Flappy-Bird-Game-Trained-With-DQN/issues)
+[![Stars](https://img.shields.io/github/stars/saifullah857/Flappy-Bird-Game-Trained-With-DQN?style=for-the-badge&logo=github&color=gold)](https://github.com/saifullah857/Flappy-Bird-Game-Trained-With-DQN/stargazers)
+
+</div>
 
 ---
 
@@ -31,7 +47,7 @@
 
 ## ✨ Overview
 
-**flappy-dqn** trains an autonomous AI agent to play **Flappy Bird** using **Deep Q-Network (DQN)** — a foundational deep reinforcement learning algorithm. The agent observes the game state, learns through millions of trials, and eventually masters pipe-dodging without ever being explicitly programmed how.
+**Flappy-Bird-Game-Trained-With-DQN** trains an autonomous AI agent to play **Flappy Bird** using **Deep Q-Network (DQN)** — a foundational deep reinforcement learning algorithm. The agent observes the game state, learns through millions of trials, and eventually masters pipe-dodging without ever being explicitly programmed how.
 
 <div align="center">
 
@@ -89,7 +105,7 @@ Output Layer (2 neurons)   ← Q-values for [No Flap, Flap]
 ## 🗂️ Project Structure
 
 ```
-flappy-dqn/
+Flappy-Bird-Game-Trained-With-DQN/
 │
 ├── 📄 agent.py               # Core DQN agent — training & inference loop
 ├── 📄 dqn.py                 # Neural network definition (PyTorch)
@@ -110,7 +126,7 @@ flappy-dqn/
 
 ```bash
 git clone https://github.com/saifullah857/Flappy-Bird-Game-Trained-With-DQN.git
-
+cd Flappy-Bird-Game-Trained-With-DQN
 ```
 
 ### 2. Create a Virtual Environment *(recommended)*
