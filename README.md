@@ -11,20 +11,6 @@
 
 <br/>
 
-> **A Deep Q-Network (DQN) reinforcement learning agent that learns to play Flappy Bird from scratch — no human input, just raw trial and error.**
-
-<br/>
-
-<!-- Flappy Bird GIF / Banner -->
-<img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExeHFhdWZuazhiNDU4dXp5c3JvMGF5d3d3bGhiczllMHFwdWJ4eTdibyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0HlBO7eyXzSZkJri/giphy.gif" alt="Flappy Bird Gameplay" width="480" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);"/>
-
-<br/><br/>
-
-[![Watch Demo](https://img.shields.io/badge/▶%20Watch%20Demo-YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](#)
-[![Open Issues](https://img.shields.io/github/issues/yourusername/flappy-dqn?style=for-the-badge&logo=github)](https://github.com/yourusername/flappy-dqn/issues)
-[![Stars](https://img.shields.io/github/stars/yourusername/flappy-dqn?style=for-the-badge&logo=github&color=gold)](https://github.com/yourusername/flappy-dqn/stargazers)
-
-</div>
 
 ---
 
