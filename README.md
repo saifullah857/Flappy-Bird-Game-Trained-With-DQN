@@ -16,7 +16,7 @@
 <br/>
 
 
-   . <img src="https://i.pcmag.com/imagery/reviews/06fBcC3YpdFj7i0VvkWspTj-1.fit_lim.size_885x1444.v_1569469985.jpg" alt="Agent playing Flappy Bird" width="480"/>
+   . <img src="https://i.pcmag.com/imagery/reviews/06fBcC3YpdFj7i0VvkWspTj-1.fit_lim.size_885x1444.v_1569469985.jpg" alt="Agent playing Flappy Bird" height="300"/>
     
 
 
