@@ -1,0 +1,15 @@
+flappybirdv0:
+  env_id: FlappyBird-v0
+
+  # Slower decay = more exploration before exploiting
+  epsilon_init: 1.0
+  epsilon_min: 0.01
+  epsilon_decay: 0.9998
+
+  replay_memory_size: 200000   # larger buffer = more diverse experiences
+  mini_batch_size: 64          # larger batch = more stable gradients
+  network_sync_rate: 2000      # target stays stable longer
+
+  alpha: 0.0005                # lower LR = smoother, more stable learning
+  gamma: 0.99
+  reward_threshold: 5000       # raised ceiling so agent doesn't stop early
