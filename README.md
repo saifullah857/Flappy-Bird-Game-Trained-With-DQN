@@ -11,14 +11,11 @@
 
 <br/>
 
-> **A Deep Q-Network (DQN) reinforcement learning agent that learns to play Flappy Bird from scratch — no human input, just raw trial and error.**
+> **A Double Deep Q-Network (DDQN) reinforcement learning agent that learns to play Flappy Bird from scratch — with reward shaping, gradient clipping, and best-episode rendering.**
 
 <br/>
 
-
-   . <img src="https://i.pcmag.com/imagery/reviews/06fBcC3YpdFj7i0VvkWspTj-1.fit_lim.size_885x1444.v_1569469985.jpg" alt="Agent playing Flappy Bird" height="300"/>
-    
-
+<img src="https://i.pcmag.com/imagery/reviews/06fBcC3YpdFj7i0VvkWspTj-1.fit_lim.size_885x1444.v_1569469985.jpg" alt="Agent playing Flappy Bird" height="300"/>
 
 <br/>
 
@@ -47,18 +44,21 @@
 
 ## ✨ Overview
 
-**Flappy-Bird-Game-Trained-With-DQN** trains an autonomous AI agent to play **Flappy Bird** using **Deep Q-Network (DQN)** — a foundational deep reinforcement learning algorithm. The agent observes the game state, learns through millions of trials, and eventually masters pipe-dodging without ever being explicitly programmed how.
+**Flappy-Bird-Game-Trained-With-DQN** trains an autonomous AI agent to play **Flappy Bird** using **Double Deep Q-Network (DDQN)** — an improved deep reinforcement learning algorithm over standard DQN. The agent observes the game state, learns through thousands of trials, and masters pipe-dodging without ever being explicitly programmed how.
 
 <div align="center">
 
 | Feature | Detail |
 |---|---|
-| 🧠 Algorithm | Deep Q-Network (DQN) |
+| 🧠 Algorithm | Double Deep Q-Network (DDQN) |
 | 🎮 Environment | `FlappyBird-v0` via `flappy-bird-gymnasium` |
-| 🔁 Experience Replay | ✅ Circular buffer |
-| 🎯 Target Network | ✅ Periodic sync |
-| 📉 Epsilon Decay | ✅ Exponential decay |
-| 💾 Auto-Save | ✅ Best model checkpoint |
+| 🔁 Experience Replay | ✅ Circular buffer (200,000 capacity) |
+| 🎯 Target Network | ✅ Periodic sync every 2000 steps |
+| 📉 Epsilon Decay | ✅ Exponential decay (0.9998) |
+| 🏆 Reward Shaping | ✅ Survival bonus + centering bonus + velocity penalty |
+| ✂️ Gradient Clipping | ✅ max_norm=10 for stable training |
+| 💾 Auto-Save | ✅ Best model checkpoint + all-time best |
+| 🎬 Best Renderer | ✅ Silently finds best episode then renders it |
 | ⚡ Device Support | CPU / CUDA / Apple MPS |
 
 </div>
@@ -68,37 +68,48 @@
 ## 🧠 How It Works
 
 ```
-Agent observes 12-dimensional state
+Agent observes 180-dimensional state
         ↓
 ε-greedy policy → Flap or No Flap
         ↓
+Reward Shaping (survival + centering + velocity penalty)
+        ↓
 Store (state, action, reward, next_state) in Replay Buffer
         ↓
-Sample mini-batch → Compute Bellman target
+Sample mini-batch → Compute Double DQN Bellman target
         ↓
-Backpropagate loss → Update Policy Network
+Backpropagate loss + Gradient Clipping → Update Policy Network
         ↓
-Periodically sync Target Network
+Periodically sync Target Network (every 2000 steps)
+        ↓
+Auto-save when new best reward is achieved
 ```
 
 ### 🏗️ Network Architecture
 
 ```
-Input Layer  (12 neurons)  ← Game state
+Input Layer   (state_dim neurons)  ← Game state
       ↓
-Hidden Layer (250 neurons) + ReLU
+Hidden Layer  (256 neurons) + ReLU
       ↓
-Output Layer (2 neurons)   ← Q-values for [No Flap, Flap]
+Hidden Layer  (256 neurons) + ReLU
+      ↓
+Hidden Layer  (128 neurons) + ReLU
+      ↓
+Output Layer  (2 neurons)          ← Q-values for [No Flap, Flap]
 ```
 
-### 🔑 Key DQN Components
+### 🔑 Key Components
 
 | Component | Description |
 |---|---|
 | **Policy Network** | Makes real-time action decisions |
-| **Target Network** | Provides stable Q-value targets, synced every N steps |
-| **Replay Memory** | Stores past transitions; breaks temporal correlation |
-| **ε-Greedy Exploration** | Starts random, gradually shifts to exploitation |
+| **Target Network** | Provides stable Q-value targets, synced every 2000 steps |
+| **Replay Memory** | Stores 200,000 past transitions; breaks temporal correlation |
+| **ε-Greedy Exploration** | Starts at 1.0, decays to 0.01 over ~15,000 episodes |
+| **Double DQN** | Policy net picks action, target net evaluates it — prevents Q-value overestimation |
+| **Reward Shaping** | +0.1 survival/step, +0.2 centering bonus, −5.0 death penalty |
+| **Gradient Clipping** | Prevents catastrophic forgetting from bad mini-batches |
 
 ---
 
@@ -107,15 +118,17 @@ Output Layer (2 neurons)   ← Q-values for [No Flap, Flap]
 ```
 Flappy-Bird-Game-Trained-With-DQN/
 │
-├── 📄 agent.py               # Core DQN agent — training & inference loop
-├── 📄 dqn.py                 # Neural network definition (PyTorch)
+├── 📄 agent.py               # Core DDQN agent — training & inference loop
+├── 📄 dqn.py                 # Neural network definition (3 hidden layers)
 ├── 📄 experiance_replay.py   # Replay memory buffer
 ├── 📄 game_flappy_bird.py    # Play manually with keyboard input
+├── 📄 render_best.py         # Find & render the best episode silently
 ├── 📄 parameters.yaml        # Hyperparameter configuration sets
 │
 └── 📁 runs/
-    ├── flappybirdv0.pt       # Saved model weights (best reward)
-    └── flappybirdv0.log      # Training reward log
+    ├── flappybirdv0.pt        # Latest best model weights
+    ├── flappybirdv0_best.pt   # All-time best model weights
+    └── flappybirdv0.log       # Training reward log
 ```
 
 ---
@@ -140,10 +153,20 @@ venv\Scripts\activate           # Windows
 ### 3. Install Dependencies
 
 ```bash
-pip install torch gymnasium flappy-bird-gymnasium pygame pyyaml
+pip install torch gymnasium flappy-bird-gymnasium pygame pyyaml numpy
 ```
 
 > 💡 For GPU support, visit [pytorch.org](https://pytorch.org/get-started/locally/) and install the CUDA-compatible build.
+
+### 4. Fix OpenMP conflict on Windows *(if needed)*
+
+If you get `OMP: Error #15` on Windows PowerShell:
+
+```powershell
+$env:KMP_DUPLICATE_LIB_OK="TRUE"
+```
+
+Run this once before any python command in the same terminal session.
 
 ---
 
@@ -165,19 +188,37 @@ python game_flappy_bird.py
 python agent.py flappybirdv0 --train
 ```
 
-- The agent will train indefinitely until you stop it.
-- The **best model** is auto-saved to `runs/flappybirdv0.pt`.
-- Training progress is logged to `runs/flappybirdv0.log`.
+- Trains indefinitely until you stop with **Ctrl+C**
+- Best model auto-saved to `runs/flappybirdv0_best.pt`
+- Training progress logged to `runs/flappybirdv0.log`
 
 ---
 
 ### 🤖 Watch the Trained Agent Play
 
 ```bash
+# Watch 10 episodes (default)
 python agent.py flappybirdv0
+
+# Watch a specific number of episodes
+python agent.py flappybirdv0 --test-episodes 20
 ```
 
-> Make sure `runs/flappybirdv0.pt` exists (i.e., you've trained at least once).
+---
+
+### 🏆 Find & Render the Best Episode
+
+Silently tests N episodes in the background, finds the highest scoring one, then renders only that:
+
+```bash
+python render_best.py
+```
+
+Change `SEARCH_COUNT` inside `render_best.py` to search more episodes:
+
+```python
+SEARCH_COUNT = 500  # search 500 silent runs before rendering the best
+```
 
 ---
 
@@ -187,15 +228,15 @@ Edit `parameters.yaml` and add a new block:
 
 ```yaml
 my_experiment:
-  epsilon_init: 1
+  epsilon_init: 1.0
   epsilon_min: 0.01
-  epsilon_decay: 0.999
-  replay_memory_size: 50000
+  epsilon_decay: 0.9998
+  replay_memory_size: 200000
   mini_batch_size: 64
-  network_sync_rate: 20
+  network_sync_rate: 2000
   alpha: 0.0005
-  gamma: 0.95
-  reward_threshold: 500
+  gamma: 0.99
+  reward_threshold: 5000
 ```
 
 Then train with:
@@ -210,35 +251,67 @@ python agent.py my_experiment --train
 
 Configured via `parameters.yaml`:
 
-| Parameter | Default | Description |
+| Parameter | Value | Description |
 |---|---|---|
-| `alpha` | `0.001` | Learning rate for Adam optimizer |
+| `alpha` | `0.0005` | Learning rate for Adam optimizer |
 | `gamma` | `0.99` | Discount factor for future rewards |
 | `epsilon_init` | `1.0` | Starting exploration rate |
-| `epsilon_min` | `0.05` | Minimum exploration rate |
-| `epsilon_decay` | `0.9995` | Multiplicative decay per episode |
-| `replay_memory_size` | `100,000` | Max transitions stored in buffer |
-| `mini_batch_size` | `32` | Sample size per training step |
-| `network_sync_rate` | `10` | Steps between target network updates |
-| `reward_threshold` | `1000` | Max reward per episode before reset |
+| `epsilon_min` | `0.01` | Minimum exploration rate |
+| `epsilon_decay` | `0.9998` | Multiplicative decay per episode |
+| `replay_memory_size` | `200,000` | Max transitions stored in buffer |
+| `mini_batch_size` | `64` | Sample size per training step |
+| `network_sync_rate` | `2000` | Steps between target network updates |
+| `reward_threshold` | `5000` | Max reward per episode before reset |
+
+### 🎯 How Many Episodes to Train?
+
+| Episodes | Expected Performance |
+|---|---|
+| 0 – 2,000 | Random / very early learning |
+| 2,000 – 5,000 | Occasionally passes 1–2 pipes |
+| 5,000 – 15,000 | Agent learns gap alignment |
+| 15,000 – 30,000 | Consistent performance, best zone |
+| 30,000+ | Diminishing returns |
+
+> With `epsilon_decay: 0.9998`, the agent reaches near-greedy behavior at ~15,000 episodes. **Sweet spot: 20,000–30,000 episodes.**
 
 ---
 
 ## 📊 Training Results
 
-The agent's reward improves significantly as epsilon decays and the replay buffer fills up. Typical training curve:
+Actual training log from this model:
 
 ```
-Episode 1      Reward = -2.10   Epsilon = 1.0000
-Episode 50     Reward = -1.40   Epsilon = 0.9753
-Episode 200    Reward =  0.30   Epsilon = 0.9050
-Episode 500    Reward =  5.20   Epsilon = 0.7790
-Episode 1000   Reward = 18.50   Epsilon = 0.6068
-Episode 3000   Reward = 84.70   Epsilon = 0.2231
-...
+New best reward = -7.00   at episode 1
+New best reward = 2.00    at episode 2926
+New best reward = 12.00   at episode 9014
+New best reward = 45.00   at episode 12910
+New best reward = 54.00   at episode 16417
+New best reward = 77.49   at episode 18666
+New best reward = 94.75   at episode 23088
+New best reward = 107.26  at episode 24059
+New best reward = 124.28  at episode 25301
+New best reward = 143.87  at episode 26169   ← current best
 ```
 
 > 📁 Full logs saved to `runs/flappybirdv0.log`
+
+---
+
+## 🔧 Improvements Over Basic DQN
+
+| Improvement | Impact |
+|---|---|
+| **Double DQN** | Stops Q-value overestimation → better decisions near pipes |
+| **Death penalty (−5.0)** | Makes survival the top priority |
+| **Survival bonus (+0.1/step)** | Solves sparse reward problem early in training |
+| **Centering bonus (+0.2)** | Teaches bird *where* to fly, not just whether to flap |
+| **Velocity penalty (−0.05)** | Prevents overshooting the gap center |
+| **Gradient clipping** | Prevents catastrophic forgetting after bad batches |
+| **Deeper network (3 layers)** | Learns complex pipe-gap timing relationships |
+| **Larger replay buffer (200k)** | More diverse experience, more stable learning |
+| **Larger batch size (64)** | Less noisy gradient updates |
+| **Lower LR (0.0005)** | Smoother, more stable convergence |
 
 ---
 
@@ -262,6 +335,7 @@ Episode 3000   Reward = 84.70   Epsilon = 0.2231
 | `flappy-bird-gymnasium` | Flappy Bird environment |
 | `PyGame` | Rendering & manual play |
 | `PyYAML` | Hyperparameter configuration |
+| `NumPy` | Reward history & statistics |
 
 ---
 
